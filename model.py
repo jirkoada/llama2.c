@@ -266,11 +266,14 @@ class Transformer(nn.Module):
             logits3 = self.output3(h)[:, :-2, :]
             #print(f"Logits shape: {logits.shape}, targets shape: {targets.shape}")
             #print(f"Logits view shape: {logits.view(-1, logits.size(-1)).shape}, targets view shape: {targets.view(-1).shape}")
-            self.first_step_loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
-            self.second_step_loss = F.cross_entropy(logits2.reshape(-1, logits2.size(-1)), targets[:, 1:].reshape(-1), ignore_index=-1)
-            self.third_step_loss = F.cross_entropy(logits3.reshape(-1, logits3.size(-1)), targets[:, 2:].reshape(-1), ignore_index=-1)
-            #self.last_loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
-            self.last_loss = (self.first_step_loss + self.second_step_loss + self.third_step_loss) / 3.0
+            if self.training:
+                self.first_step_loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
+                self.second_step_loss = F.cross_entropy(logits2.reshape(-1, logits2.size(-1)), targets[:, 1:].reshape(-1), ignore_index=-1)
+                self.third_step_loss = F.cross_entropy(logits3.reshape(-1, logits3.size(-1)), targets[:, 2:].reshape(-1), ignore_index=-1)
+                #self.last_loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
+                self.last_loss = (self.first_step_loss + self.second_step_loss + self.third_step_loss) / 3.0
+            else:
+                self.last_loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
         else:
             # inference-time mini-optimization: only forward the output on the very last position
             logits = self.output(h[:, [-1], :]) # note: using list [-1] to preserve the time dim
