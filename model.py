@@ -271,7 +271,7 @@ class Transformer(nn.Module):
                 self.second_step_loss = F.cross_entropy(logits2.reshape(-1, logits2.size(-1)), targets[:, 1:].reshape(-1), ignore_index=-1)
                 self.third_step_loss = F.cross_entropy(logits3.reshape(-1, logits3.size(-1)), targets[:, 2:].reshape(-1), ignore_index=-1)
                 #self.last_loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
-                self.last_loss = (self.first_step_loss + self.second_step_loss + self.third_step_loss) / 3.0
+                self.last_loss = 0.6*self.first_step_loss + 0.3*self.second_step_loss + 0.1*self.third_step_loss
             else:
                 self.last_loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
         else:
