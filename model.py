@@ -266,14 +266,14 @@ class Transformer(nn.Module):
             if self.training:
                 rnn_out, _= self.rnn_down(h)
                 logits2 = self.ff_up(rnn_out)[:, :-1, :]
-                logits3 = logits2[:, :-1, :]
+                #logits3 = logits2[:, :-1, :]
                 #print(f"Logits shape: {logits.shape}, targets shape: {targets.shape}")
                 #print(f"Logits view shape: {logits.view(-1, logits.size(-1)).shape}, targets view shape: {targets.view(-1).shape}")
                 first_step_loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
                 second_step_loss = F.cross_entropy(logits2.reshape(-1, logits2.size(-1)), targets[:, 1:].reshape(-1), ignore_index=-1)
-                third_step_loss = F.cross_entropy(logits3.reshape(-1, logits3.size(-1)), targets[:, 2:].reshape(-1), ignore_index=-1)
+                #third_step_loss = F.cross_entropy(logits3.reshape(-1, logits3.size(-1)), targets[:, 2:].reshape(-1), ignore_index=-1)
                 #self.last_loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
-                self.last_loss = 0.7*first_step_loss + 0.2*second_step_loss + 0.1*third_step_loss
+                self.last_loss = 0.7*first_step_loss + 0.3*second_step_loss # + 0.1*third_step_loss
             else:
                 self.last_loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
         else:
