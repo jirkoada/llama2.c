@@ -219,9 +219,9 @@ class Transformer(nn.Module):
             self.layers.append(TransformerBlock(layer_id, params))
         self.norm = RMSNorm(params.dim, eps=params.norm_eps)
         self.output = nn.Linear(params.dim, params.vocab_size, bias=False)
-        self.rnn_down = nn.LSTM(params.dim, 128) #, barch_first=True)
+        self.rnn_down = nn.LSTM(params.dim, params.dim) #, barch_first=True)
         #self.rnn_up = nn.LSTM(128, params.vocab_size, barch_first=True)
-        self.ff_up = nn.Linear(128, params.vocab_size, bias=False)
+        #self.ff_up = nn.Linear(128, params.vocab_size, bias=False)
 
         # share the unembedding parameters with the embedding parameters
         self.tok_embeddings.weight = self.output.weight # https://paperswithcode.com/method/weight-tying
@@ -265,7 +265,9 @@ class Transformer(nn.Module):
             logits = self.output(h)
             if self.training:
                 rnn_out, _= self.rnn_down(h)
-                logits2 = self.ff_up(rnn_out)[:, :-1, :]
+                logits2 = self.output(rnn_out)[:, :-1, :]
+                #logits3 = logits2[:, :-1, :]
+                #logits2 = self.ff_up(rnn_out)[:, :-1, :]
                 #logits3 = logits2[:, :-1, :]
                 #print(f"Logits shape: {logits.shape}, targets shape: {targets.shape}")
                 #print(f"Logits view shape: {logits.view(-1, logits.size(-1)).shape}, targets view shape: {targets.view(-1).shape}")
